@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# find root device
+
+find_root_blkdev() {
+    local rootdev blkdev fs type opts misc
+    while read blkdev fs type opts misc; do
+        [[ $blkdev = rootfs ]] && continue # skip rootfs entry
+        [[ $fs = / ]] && { rootdev=$blkdev; break; } # we have a winner!
+    done < /proc/mounts
+
+    [[ -b $rootdev ]] || return 1 # oops, not a block device.
+    echo "$rootdev"
+}
+
+ROOTDEV=$(find_root_blkdev) || exit 1
+
+# rewrite crypttab to add our key file
+
+TMPCRYPT=$(mktemp -q /tmp/crypttab.XXXXXXXXX) || exit 1
+
+while read name dev luksfile rest; do
+    # ignore blank lines and comments
+    [ -z "$name" -o "${name#\#}" != "$name" ] && continue
+
+    match=0
+
+    # UUID used in crypttab
+    if [ "${dev%%=*}" = "UUID" ]; then
+        [ "luks-${dev##UUID=}" = "${ROOTDEV##*/}" ] && match=1
+
+    # path used in crypttab
+    else
+        cdev=$(readlink -f $dev)
+        mdev=$(readlink -f $ROOTDEV)
+        [ "$cdev" = "$mdev" ] && match=1
+    fi
+
+    # we found the crypttab entry for ROOTDEV
+    [ $match -eq 1 ] && luksfile=/tmp/rootfs.key
+
+    # copy the entry into the new crypttab
+    echo "$name" "$dev" "$luksfile" "$rest" >> "$TMPCRYPT"
+
+done < /etc/crypttab
+unset name dev rest match
+
+# remove existing crypttab first
+rm -f "${initdir}/etc/crypttab"
+inst "$TMPCRYPT" /etc/crypttab
+
+rm -f "$TMPCRYPT"
+
+# install support binaries
+
+inst_binary dmidecode 
+inst "$moddir/gmcrypt-lib.sh" /lib/dracut-gmcrypt-lib.sh
+
+
+# add a hook that generates our key file
+inst_hook cmdline   31 "$moddir/gmcrypt-gen.sh"
+inst_hook pre-pivot 32 "$moddir/gmcrypt-cleanup.sh"
+inst_hook pre-pivot 33 "$moddir/gmcrypt-cleanup.sh"
+
