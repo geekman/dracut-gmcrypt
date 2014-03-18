@@ -1,7 +1,7 @@
 %define dracutmoddir %{_prefix}/share/dracut/modules.d/90zgmcrypt
 
 Name:		dracut-gmcrypt
-Version:	1.0
+Version:	1.1
 Release:	1%{?dist}
 Summary:	Provides passwordless unlocking of LUKS root volumes
 
@@ -49,6 +49,9 @@ rm -rf %{buildroot}
 %doc %{dracutmoddir}/README.md
 
 %changelog
+* Tue Mar 18 2014 - Darell Tan <darell.tan@gmail.com>
+- bugfix
+
 * Sat Mar 15 2014 - Darell Tan <darell.tan@gmail.com>
 - initial build
 
