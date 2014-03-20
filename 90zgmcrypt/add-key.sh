@@ -53,7 +53,7 @@ echo
 echo "Generating key and adding it to ${DEV}..."
 
 gmcrypt_genkey "$TMPFILE" "$DEV_UUID" &&
-    cryptsetup luksAddKey "$DEV" "$TMPFILE" 
+    cryptsetup luksAddKey --iter-time 3000 "$DEV" "$TMPFILE" 
 
 echo "Done."
 
