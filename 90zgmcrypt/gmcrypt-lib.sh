@@ -16,6 +16,13 @@ gmcrypt_genkey() {
     done
     echo "$UUID" >> "$KEYFILE"
 
-    unset KEYFILE UUID
+    # MAC addresses
+    for NETDEV in /sys/class/net/*; do
+        [ -d "$NETDEV/device/driver" ] && cat "$NETDEV/address" >> "${KEYFILE}.macs"
+    done
+    sort "${KEYFILE}.macs" >> "$KEYFILE"
+    rm -f "${KEYFILE}.macs"
+
+    unset KEYFILE UUID NETDEV
 }
 

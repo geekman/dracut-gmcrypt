@@ -54,11 +54,12 @@ rm -f "$TMPCRYPT"
 # install support binaries
 
 inst_binary dmidecode 
+inst_binary sort 
 inst "$moddir/gmcrypt-lib.sh" /lib/dracut-gmcrypt-lib.sh
 
 
 # add a hook that generates our key file
-inst_hook cmdline   31 "$moddir/gmcrypt-gen.sh"
+# this has to be before the initqueue
+inst_hook pre-trigger 10 "$moddir/gmcrypt-gen.sh"
 inst_hook pre-pivot 32 "$moddir/gmcrypt-cleanup.sh"
-inst_hook pre-pivot 33 "$moddir/gmcrypt-cleanup.sh"
 

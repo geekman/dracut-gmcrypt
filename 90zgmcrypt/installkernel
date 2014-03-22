@@ -1,0 +1,20 @@
+#!/bin/bash
+#
+# installs the network drivers and a script to load them on-boot
+#
+
+TMPLOADNET=$(mktemp -q /tmp/loadnet.XXXXXXXXX.sh) || exit 1
+
+for i in /sys/class/net/*; do
+	[ ! -d "$i/device/driver" ] && continue
+	DRIVER=$(readlink $i/device/driver/module)
+	DRIVER=${DRIVER##*/}
+
+	instmods $DRIVER
+	echo "modprobe -q $DRIVER" >> $TMPLOADNET
+done
+
+[ -s "$TMPLOADNET" ] && inst_hook cmdline 30 "$TMPLOADNET"
+
+rm -f "$TMPLOADNET"
+
