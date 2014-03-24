@@ -1,0 +1,12 @@
+#!/bin/sh -x
+#
+# creates a tgz file from the latest hg revision and builds a binary rpm
+# note that files in the working copy (not commited) will not be operated on
+#
+
+DIR=$(mktemp -d /tmp/dracut-gmcrypt-build.XXXXXXXXXXXX) || exit 1
+trap "rm -rf $DIR" EXIT
+
+hg archive -t tgz $DIR/dracut-gmcrypt.tar.gz &&
+     rpmbuild -tb $DIR/dracut-gmcrypt.tar.gz
+
