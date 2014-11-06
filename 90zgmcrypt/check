@@ -12,7 +12,7 @@ which dmidecode >/dev/null 2>&1 || exit 1
 
 . $dracutfunctions
 
-is_crypt() { [[ $(get_fs_type /dev/block/$1) = crypto_LUKS ]]; }
+is_crypt() { get_fs_env /dev/block/$1 >/dev/null 2>&1 && [[ "$ID_FS_TYPE" = crypto_LUKS ]]; }
 
 [[ $1 = '-h' ]] && {
     rootdev=$(find_root_block_device)
