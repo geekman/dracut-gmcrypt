@@ -7,6 +7,8 @@ gmcrypt_genkey() {
     UUID=$2
     [ -z "$KEYFILE" -o -z "$UUID" ] && return 1
 
+    umask 077
+
     > "$KEYFILE"
     for dmivar in bios-vendor bios-version bios-release-date \
                     baseboard-manufacturer baseboard-product-name \
