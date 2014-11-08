@@ -1,7 +1,10 @@
 %define dracutmoddir %{_prefix}/share/dracut/modules.d/90zgmcrypt
+%if 0%{?el7}
+%define dracutmoddir %{_prefix}/lib/dracut/modules.d/90zgmcrypt
+%endif
 
 Name:		dracut-gmcrypt
-Version:	1.2
+Version:	1.3
 Release:	1%{?dist}
 Summary:	Provides passwordless unlocking of LUKS root volumes
 
@@ -50,6 +53,10 @@ rm -rf %{buildroot}
 %doc %{dracutmoddir}/README.md
 
 %changelog
+* Sat Nov 08 2014 - Darell Tan <darell.tan@gmail.com>
+- updated scripts to work with dracut 033 used by CentOS 7
+- updated install path for the dracut module
+
 * Sun Mar 23 2014 - Darell Tan <darell.tan@gmail.com>
 - increased iteration time to 3000ms
 - use network card MAC address(es) for key generation
